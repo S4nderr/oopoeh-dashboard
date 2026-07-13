@@ -1,0 +1,17 @@
+services:
+  oopoeh-dashboard:
+    build: .
+    container_name: oopoeh-dashboard
+    ports:
+      - "8099:8000"
+    environment:
+      - TZ=Europe/Amsterdam
+      - SEARCH_POSTCODE=2273vm
+      - SCRAPE_TIME=03:00
+      - RATE_LIMIT_SECONDS=1.0
+    volumes:
+      - oopoeh_data:/data
+    restart: unless-stopped
+
+volumes:
+  oopoeh_data:

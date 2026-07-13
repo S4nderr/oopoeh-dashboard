@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OOPOEH-kandidaten</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐶</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar__title">
+    <h1>🐶 OOPOEH-kandidaten</h1>
+    <p id="subtitle">Honden die met een ander huisdier kunnen</p>
+  </div>
+  <div class="topbar__actions">
+    <div class="meta">
+      <span id="lastUpdated">Nog geen gegevens</span>
+      <span id="nextRun"></span>
+      <span id="lastError" class="meta__error" hidden></span>
+    </div>
+    <button id="updateBtn" type="button">Update nu</button>
+  </div>
+</header>
+
+<div id="progress" class="progress" hidden>
+  <div class="progress__track"><div id="progressFill" class="progress__fill"></div></div>
+  <span id="progressText">Bezig…</span>
+</div>
+
+<nav class="filters">
+  <div class="filters__group" id="statusChips"></div>
+  <div class="filters__group" id="sizeChips"></div>
+  <div class="filters__group filters__group--end">
+    <label class="toggle"><input type="checkbox" id="nieuwOnly"><span>✨ Alleen nieuw</span></label>
+    <select id="sortSelect" aria-label="Sorteren">
+      <option value="afstand">Sorteer: afstand</option>
+      <option value="nieuw">Sorteer: nieuwste eerst</option>
+      <option value="leeftijd">Sorteer: leeftijd</option>
+      <option value="naam">Sorteer: naam</option>
+    </select>
+    <span id="resultCount" class="count"></span>
+  </div>
+</nav>
+
+<main id="grid" class="grid"></main>
+<p id="empty" class="empty" hidden>🐾 Geen honden gevonden met deze filters.</p>
+
+<div id="modal" class="modal" hidden>
+  <div class="modal__backdrop" id="modalBackdrop"></div>
+  <article class="modal__card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="modal__close" id="modalClose" aria-label="Sluiten">×</button>
+    <div id="modalBody"></div>
+  </article>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
