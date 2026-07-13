@@ -46,6 +46,26 @@ body {
 
 .topbar__actions { display: flex; align-items: center; gap: 16px; }
 
+.views {
+  display: flex;
+  gap: 6px;
+  background: var(--vlak);
+  border-radius: 999px;
+  padding: 4px;
+}
+.views__btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: .9rem;
+  font-weight: 600;
+  background: none;
+  color: var(--inkt-zacht);
+  cursor: pointer;
+  transition: all .12s;
+}
+.views__btn--actief { background: var(--blauw); color: #fff; }
+
 .meta { display: flex; flex-direction: column; align-items: flex-end; font-size: .78rem; color: var(--inkt-zacht); }
 .meta__error { color: #c0392b; max-width: 340px; }
 
@@ -201,23 +221,32 @@ body {
   box-shadow: var(--schaduw);
 }
 
-.card__afwijs {
+.card__acties {
   position: absolute;
   top: 10px;
   right: 12px;
   z-index: 2;
+  display: flex;
+  gap: 6px;
+}
+.card__mini {
   width: 28px;
   height: 28px;
   border: 0;
   border-radius: 50%;
   background: #eef2f6;
   color: var(--inkt-zacht);
-  font-size: 1.05rem;
+  font-size: .95rem;
   line-height: 1;
   cursor: pointer;
   transition: all .12s;
 }
-.card__afwijs:hover { background: var(--roze); color: #fff; }
+.card__mini--nee:hover { background: var(--grijs); color: #fff; }
+.card__mini--ja:hover, .card__mini:hover { background: var(--roze); color: #fff; }
+
+.card__badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.card--afgewezen { opacity: .55; }
+.badge--favoriet { background: var(--roze); }
 
 .empty { text-align: center; color: var(--inkt-zacht); padding: 40px; font-size: 1rem; }
 
@@ -300,6 +329,93 @@ body {
 }
 .modal__link:hover { background: var(--blauw-donker); }
 
+/* ---------- beoordeel-deck ---------- */
+
+.deck-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px 30px;
+}
+.deck-wrap[hidden] { display: none; }
+
+.deck-counter { margin: 0; font-size: .84rem; color: var(--inkt-zacht); }
+
+.deck-card {
+  width: min(540px, 100%);
+  height: clamp(360px, calc(100vh - 350px), 660px);
+  display: flex;
+  flex-direction: column;
+  background: var(--kaart);
+  border-radius: 22px;
+  box-shadow: 0 10px 30px rgba(35, 48, 61, .16);
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+}
+.deck-card:active { cursor: grabbing; }
+
+.deck-card__foto {
+  position: relative;
+  flex-shrink: 0;
+  height: 46%;
+  background: #dfe7ee;
+}
+.deck-card__foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.deck-card__fotobadges {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  display: flex;
+  gap: 6px;
+}
+
+.deck-card__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 22px 20px;
+}
+.deck-card__body h2 { margin: 0; font-size: 1.5rem; }
+.deck-card__sub { margin: 3px 0; font-size: .88rem; color: var(--inkt-zacht); }
+
+.deck-acties {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+.deck-acties[hidden] { display: none; }
+
+.deck-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: var(--schaduw);
+  transition: transform .1s, background .12s;
+  background: var(--kaart);
+}
+.deck-btn:hover { transform: scale(1.08); }
+.deck-btn--nee { width: 64px; height: 64px; font-size: 1.5rem; color: var(--grijs); }
+.deck-btn--nee:hover { background: var(--grijs); color: #fff; }
+.deck-btn--ja { width: 64px; height: 64px; font-size: 1.6rem; color: var(--roze); }
+.deck-btn--ja:hover { background: var(--roze); color: #fff; }
+.deck-btn--link { width: 44px; height: 44px; font-size: 1.1rem; color: var(--blauw); }
+.deck-btn--link:hover { background: var(--blauw); color: #fff; }
+
+.deck-hint { margin: 0; font-size: .76rem; color: var(--inkt-zacht); }
+.deck-leeg { text-align: center; padding: 60px 20px; font-size: 1.1rem; color: var(--inkt-zacht); }
+.deck-leeg p { margin: 0 0 14px; }
+
 /* ---------- toast & afgewezen ---------- */
 
 .toast {
@@ -330,19 +446,24 @@ body {
   white-space: nowrap;
 }
 
-.afgewezen-uitleg { margin: 4px 0 14px; font-size: .85rem; color: var(--inkt-zacht); }
-.afgewezen-lijst { display: flex; flex-direction: column; gap: 10px; }
-.afgewezen-rij {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 10px;
-  border: 1px solid var(--rand);
-  border-radius: 12px;
+.modal__acties-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.modal__ja {
+  border: 0;
+  border-radius: 999px;
+  background: var(--roze);
+  color: #fff;
+  padding: 10px 18px;
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
 }
-.afgewezen-rij img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #dfe7ee; flex-shrink: 0; }
-.afgewezen-rij span { flex: 1; font-size: .86rem; }
-.afgewezen-rij small { color: var(--inkt-zacht); }
+.modal__ja:hover { background: var(--roze-donker); }
+
+@media (max-width: 700px) {
+  /* gestapelde topbar + filters maken de header hoger; kaart moet korter zodat ✕/♥ in beeld blijven */
+  .deck-card { height: clamp(320px, calc(100vh - 480px), 660px); }
+  .deck-card__foto { height: 42%; }
+}
 
 @media (max-width: 560px) {
   .topbar, .filters, .progress { padding-left: 16px; padding-right: 16px; }

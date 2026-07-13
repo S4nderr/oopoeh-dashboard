@@ -35,9 +35,20 @@ Persistent record of when each profile-id was first observed, kept even after a 
 **Nieuw**:
 A kandidaat first observed by the collector within the last 7 days; always written "✨ Nieuw" in the UI. Distinct from OOPOEH's own "Nieuw" beschikbaarheidsstatus, which means recently registered on the site.
 
+**Beoordeling**:
+Sander's verdict on a kandidaat, given one dog at a time in the beoordeel-view (or on a card): Ja or Nee. Persistent across scrape-runs until explicitly withdrawn.
+_Avoid_: swipe, like
+
+**Favoriet**:
+A kandidaat beoordeeld with Ja — the shortlist of dogs worth contacting.
+_Avoid_: match (collides with OOPOEH's "Gematcht")
+
 **Afgewezen**:
-A kandidaat Sander dismissed ("weggeklikt") after reviewing it. Hidden from the dashboard permanently — across scrape-runs — until explicitly restored. Sander's decision, unlike Verdwenen, which is the site's doing.
+A kandidaat beoordeeld with Nee. Hidden from the dashboard by default — across scrape-runs — until the beoordeling is withdrawn. Sander's decision, unlike Verdwenen, which is the site's doing.
 _Avoid_: gezien, verborgen
+
+**Onbeoordeeld**:
+A kandidaat without beoordeling; exactly these are served, nearest first, by the beoordeel-view.
 
 **Verdwenen**:
 A dog present in the first-seen registry but absent from the latest snapshot (profile removed or outside the zoekgebied). Not displayed; its history is retained.

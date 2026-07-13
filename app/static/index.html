@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>OOPOEH-kandidaten</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐶</text></svg>">
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 
@@ -14,6 +14,10 @@
     <h1>🐶 OOPOEH-kandidaten</h1>
     <p id="subtitle">Kleine, gecastreerde honden die met een ander huisdier kunnen</p>
   </div>
+  <nav class="views" aria-label="Weergave">
+    <button id="viewBeoordelen" class="views__btn" type="button" data-view="beoordelen">Beoordelen</button>
+    <button id="viewOverzicht" class="views__btn" type="button" data-view="overzicht">Overzicht</button>
+  </nav>
   <div class="topbar__actions">
     <div class="meta">
       <span id="lastUpdated">Nog geen gegevens</span>
@@ -30,6 +34,7 @@
 </div>
 
 <nav class="filters">
+  <div class="filters__group" id="oordeelChips"></div>
   <div class="filters__group" id="statusChips"></div>
   <div class="filters__group" id="sizeChips"></div>
   <div class="filters__group filters__group--end">
@@ -40,12 +45,26 @@
       <option value="leeftijd">Sorteer: leeftijd</option>
       <option value="naam">Sorteer: naam</option>
     </select>
-    <button id="afgewezenBtn" class="chip" type="button" hidden>🚫 Afgewezen (0)</button>
     <span id="resultCount" class="count"></span>
   </div>
 </nav>
 
-<main id="grid" class="grid"></main>
+<main id="deckWrap" class="deck-wrap" hidden>
+  <p id="deckCounter" class="deck-counter"></p>
+  <article id="deckCard" class="deck-card" hidden></article>
+  <div id="deckActies" class="deck-acties" hidden>
+    <button id="neeBtn" class="deck-btn deck-btn--nee" type="button" aria-label="Nee, niet meer tonen" title="Nee (←)">✕</button>
+    <a id="deckLink" class="deck-btn deck-btn--link" target="_blank" rel="noopener" title="Bekijk op OOPOEH">↗</a>
+    <button id="jaBtn" class="deck-btn deck-btn--ja" type="button" aria-label="Ja, favoriet" title="Ja (→)">♥</button>
+  </div>
+  <p id="deckHint" class="deck-hint" hidden>swipe, of gebruik de pijltjestoetsen: ← nee &nbsp;·&nbsp; ja →</p>
+  <div id="deckLeeg" class="deck-leeg" hidden>
+    <p>🎉 Alles beoordeeld!</p>
+    <button class="chip" type="button" onclick="location.hash='overzicht'">Naar het overzicht</button>
+  </div>
+</main>
+
+<main id="grid" class="grid" hidden></main>
 <p id="empty" class="empty" hidden>🐾 Geen honden gevonden met deze filters.</p>
 
 <div id="modal" class="modal" hidden>
@@ -61,6 +80,6 @@
   <button id="toastUndo" type="button">Ongedaan maken</button>
 </div>
 
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

@@ -3,6 +3,7 @@ import os
 import threading
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta
+from typing import Literal
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, HTTPException
@@ -107,28 +108,31 @@ def api_status():
 @app.get("/api/dogs")
 def api_dogs():
     snapshot = store.load_snapshot()
-    dismissed = store.load_dismissed()
+    beoordelingen = store.load_beoordelingen()
     for dog in snapshot["dogs"]:
-        dog["afgewezen_op"] = dismissed.get(dog["id"])
-    snapshot["afgewezen_totaal"] = len(dismissed)
+        dog["beoordeling"] = beoordelingen.get(dog["id"])
     return snapshot
 
 
-@app.put("/api/afgewezen/{dog_id}")
-def api_afwijzen(dog_id: str):
-    dismissed = store.load_dismissed()
-    dismissed.setdefault(dog_id, date.today().isoformat())
-    store.save_dismissed(dismissed)
-    return {"id": dog_id, "afgewezen_op": dismissed[dog_id]}
+class Beoordeling(BaseModel):
+    oordeel: Literal["ja", "nee"]
 
 
-@app.delete("/api/afgewezen/{dog_id}")
-def api_herstel(dog_id: str):
-    dismissed = store.load_dismissed()
-    if dog_id in dismissed:
-        del dismissed[dog_id]
-        store.save_dismissed(dismissed)
-    return {"id": dog_id, "afgewezen_op": None}
+@app.put("/api/beoordeling/{dog_id}")
+def api_beoordeel(dog_id: str, beoordeling: Beoordeling):
+    beoordelingen = store.load_beoordelingen()
+    beoordelingen[dog_id] = {"oordeel": beoordeling.oordeel, "op": date.today().isoformat()}
+    store.save_beoordelingen(beoordelingen)
+    return {"id": dog_id, **beoordelingen[dog_id]}
+
+
+@app.delete("/api/beoordeling/{dog_id}")
+def api_wis_beoordeling(dog_id: str):
+    beoordelingen = store.load_beoordelingen()
+    if dog_id in beoordelingen:
+        del beoordelingen[dog_id]
+        store.save_beoordelingen(beoordelingen)
+    return {"id": dog_id, "beoordeling": None}
 
 
 app.mount("/photos", StaticFiles(directory=store.PHOTOS_DIR), name="photos")

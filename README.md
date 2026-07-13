@@ -1,6 +1,8 @@
 # OOPOEH-kandidaten dashboard
 
-Self-hosted dashboard dat elke nacht alle honden rond een postcode van [oopoeh.nl](https://www.oopoeh.nl) verzamelt en alléén de **kandidaten** toont: kleine honden (tot ~10 kg) waarvan het profiel expliciet zegt `Hond kan met ander huisdier: Ja` én `Gecastreerd of gesteriliseerd: Ja`. Ontbrekende of "Onbekend"-waarden vallen af; de criteria staan in `FILTER_LABELS`/`_is_kandidaat` in [app/scraper.py](app/scraper.py). Fotokaarten zoals op de site, met beschikbaarheidsstatus, filters, een detailpaneel en een ✨ Nieuw-badge voor honden die er vorige run nog niet waren.
+Self-hosted dashboard dat elke nacht alle honden rond een postcode van [oopoeh.nl](https://www.oopoeh.nl) verzamelt en alléén de **kandidaten** toont: kleine honden (tot ~10 kg) waarvan het profiel expliciet zegt `Hond kan met ander huisdier: Ja` én `Gecastreerd of gesteriliseerd: Ja`. Ontbrekende of "Onbekend"-waarden vallen af; de criteria staan in `FILTER_LABELS`/`_is_kandidaat` in [app/scraper.py](app/scraper.py).
+
+Kandidaten beoordeel je Tinder-gewijs in de **Beoordelen**-weergave: één profiel tegelijk met alle info, ✕/♥-knoppen, pijltjestoetsen (← nee, → ja) of swipe. Ja = **Favoriet**, nee = **Afgewezen**; beide blijven over scrape-runs heen bewaard en zijn altijd terug te draaien in het **Overzicht** (filter op Favoriet / Onbeoordeeld / Afgewezen). Fotokaarten zoals op de site, met beschikbaarheidsstatus, filters, een detailpaneel en een ✨ Nieuw-badge voor honden die er vorige run nog niet waren.
 
 Zie [CONTEXT.md](CONTEXT.md) voor het begrippenkader (Kandidaat, Snapshot, Nieuw, …).
 
@@ -59,4 +61,4 @@ curl -X POST http://127.0.0.1:8000/api/scrape -H "Content-Type: application/json
 - `GET /api/dogs` — huidige snapshot (kandidaten + stats; per hond `afgewezen_op`)
 - `POST /api/scrape` — start een scrape-run (`409` als er al één draait; optioneel `{"max_pages": n}` voor tests)
 - `GET /api/status` — voortgang, laatste fout, volgende geplande run
-- `PUT /api/afgewezen/{dog_id}` / `DELETE /api/afgewezen/{dog_id}` — hond afwijzen ("weggeklikt", blijft over runs heen verborgen) of herstellen; opslag in `afgewezen.json` op het volume
+- `PUT /api/beoordeling/{dog_id}` met `{"oordeel": "ja"|"nee"}` / `DELETE /api/beoordeling/{dog_id}` — beoordeling zetten of wissen; opslag in `beoordelingen.json` op het volume
