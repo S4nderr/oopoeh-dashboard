@@ -72,7 +72,7 @@ async function loadDogs() {
   state.dogs = snap.dogs || [];
   const sub = el("subtitle");
   if (snap.postcode) {
-    sub.textContent = `Honden rond ${snap.postcode.toUpperCase()} die met een ander huisdier kunnen`;
+    sub.textContent = `Kleine, gecastreerde honden rond ${snap.postcode.toUpperCase()} die met een ander huisdier kunnen`;
   }
   if (snap.scraped_at) {
     el("lastUpdated").textContent = `Laatst bijgewerkt: ${fmtDateTime(snap.scraped_at)}`;
@@ -102,6 +102,9 @@ function buildChips() {
 
 function renderChipGroup(container, values, activeSet) {
   container.innerHTML = "";
+  // een groep met één waarde filtert niets — verberg hem (bv. grootte, nu alles Klein is)
+  container.hidden = values.length <= 1;
+  if (container.hidden) return;
   for (const value of values) {
     const chip = document.createElement("button");
     chip.type = "button";

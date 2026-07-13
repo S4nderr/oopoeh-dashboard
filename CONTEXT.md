@@ -5,7 +5,7 @@ Self-hosted dashboard that continuously collects dogs from OOPOEH around postcod
 ## Language
 
 **Kandidaat**:
-A dog whose OOPOEH profile explicitly states "Hond kan met ander huisdier: Ja". Only kandidaten appear on the dashboard; an absent field disqualifies just like "Nee".
+A dog whose OOPOEH profile explicitly states "Hond kan met ander huisdier: Ja" and "Gecastreerd of gesteriliseerd: Ja" and whose Grootte is Klein (tot ~10 kg). Only kandidaten appear on the dashboard; an absent or "Onbekend" value disqualifies just like "Nee".
 _Avoid_: match, hit (collides with OOPOEH's own "Gematcht")
 
 **Hondenprofiel**:

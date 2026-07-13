@@ -16,8 +16,23 @@ import store
 
 BASE_URL = "https://www.oopoeh.nl"
 USER_AGENT = "oopoeh-dashboard/1.0 (persoonlijk gebruik; sandertkruis@gmail.com)"
-FILTER_LABEL = "Hond kan met ander huisdier"
 NIEUW_DAYS = 7
+
+# Kandidaat-criteria: alle drie vereist; ontbrekend of "Onbekend" telt als nee.
+FILTER_LABELS = (
+    "Hond kan met ander huisdier",
+    "Gecastreerd of gesteriliseerd",
+    "Grootte van de hond",
+)
+
+
+def _is_kandidaat(fields):
+    return (
+        fields.get("Hond kan met ander huisdier") == "Ja"
+        and fields.get("Gecastreerd of gesteriliseerd") == "Ja"
+        # prefix-match zodat een herformulering van "(tot ~10 kg)" niet breekt
+        and fields.get("Grootte van de hond", "").startswith("Klein")
+    )
 
 
 class ScrapeError(RuntimeError):
@@ -235,18 +250,15 @@ def run(progress, max_pages=None):
             progress("hondenprofielen", i, len(unique_ids))
 
         dogs = []
-        field_counts = {}
-        missing_field = 0
+        filter_stats = {label: {} for label in FILTER_LABELS}
         for card in cards:
             profile = profiles.get(card["profile_id"])
             pet = _match_pet(profile, card["name"]) if profile else None
             fields = pet["fields"] if pet else {}
-            value = fields.get(FILTER_LABEL)
-            if value is None:
-                missing_field += 1
-            else:
-                field_counts[value] = field_counts.get(value, 0) + 1
-            if value != "Ja":
+            for label in FILTER_LABELS:
+                value = fields.get(label, "— ontbreekt —")
+                filter_stats[label][value] = filter_stats[label].get(value, 0) + 1
+            if not _is_kandidaat(fields):
                 continue
             dogs.append({
                 "id": f"{card['profile_id']}-{_slug(card['name'])}",
@@ -286,8 +298,7 @@ def run(progress, max_pages=None):
             "profiles_fetched": len(profiles),
             "profile_errors": profile_errors,
             "kandidaten": len(dogs),
-            "veld_waarden": field_counts,
-            "veld_ontbreekt": missing_field,
+            "filters": filter_stats,
             "duur_seconden": round(time.monotonic() - started),
         }
         store.save_snapshot({
