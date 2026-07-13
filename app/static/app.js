@@ -125,6 +125,7 @@ function renderChipGroup(container, values, activeSet) {
 
 function visibleDogs() {
   let dogs = state.dogs.filter((d) =>
+    !d.afgewezen_op &&
     state.activeStatuses.has(d.status) &&
     state.activeSizes.has(dogSize(d)) &&
     (!state.nieuwOnly || d.is_new));
@@ -141,11 +142,14 @@ function visibleDogs() {
 
 function render() {
   const dogs = visibleDogs();
-  el("resultCount").textContent = `${dogs.length} van ${state.dogs.length} kandidaten`;
-  el("empty").hidden = dogs.length > 0 || state.dogs.length === 0;
+  const beschikbaar = state.dogs.filter((d) => !d.afgewezen_op);
+  el("resultCount").textContent = `${dogs.length} van ${beschikbaar.length} kandidaten`;
+  el("empty").hidden = dogs.length > 0 || beschikbaar.length === 0;
+  updateAfgewezenBtn();
 
   el("grid").innerHTML = dogs.map((dog) => `
     <article class="card" data-id="${esc(dog.id)}">
+      <button class="card__afwijs" type="button" title="Gezien — niet meer tonen" aria-label="Wijs ${esc(dog.name)} af">×</button>
       ${dog.is_new ? '<span class="badge badge--nieuw">✨ Nieuw</span>' : ""}
       <img class="card__photo" loading="lazy" alt="Foto van ${esc(dog.name)}"
            src="${dog.photo ? "/" + esc(dog.photo) : PLACEHOLDER}"
@@ -156,10 +160,6 @@ function render() {
       <span class="badge badge--${statusClass(dog.status)}">${esc(dog.status)}</span>
       <p class="card__desc">${esc(snippet(dog.description, 130))}</p>
     </article>`).join("");
-
-  for (const card of el("grid").children) {
-    card.addEventListener("click", () => openModal(card.dataset.id));
-  }
 }
 
 /* ---------- modal ---------- */
@@ -192,8 +192,13 @@ function openModal(id) {
     ${dog.owner_text ? `<div class="modal__sectie"><h3>Het baasje vertelt</h3><p>${esc(dog.owner_text)}</p></div>` : ""}
     ${rows ? `<div class="modal__sectie"><h3>Eigenschappen</h3><table class="veldtabel">${rows}</table></div>` : ""}
     <div class="modal__acties">
+      <button class="modal__afwijs" type="button">🚫 Gezien, niet meer tonen</button>
       <a class="modal__link" href="${esc(dog.url)}" target="_blank" rel="noopener">Bekijk op OOPOEH →</a>
     </div>`;
+  el("modalBody").querySelector(".modal__afwijs").addEventListener("click", () => {
+    closeModal();
+    afwijzen(dog.id);
+  });
   el("modal").hidden = false;
   document.body.style.overflow = "hidden";
 }
@@ -201,6 +206,64 @@ function openModal(id) {
 function closeModal() {
   el("modal").hidden = true;
   document.body.style.overflow = "";
+}
+
+/* ---------- afwijzen & herstel ---------- */
+
+let toastTimer = null;
+let lastDismissedId = null;
+
+async function afwijzen(id) {
+  const dog = state.dogs.find((d) => d.id === id);
+  await fetch(`/api/afgewezen/${encodeURIComponent(id)}`, { method: "PUT" });
+  lastDismissedId = id;
+  showToast(`${dog ? dog.name : "Hond"} afgewezen — je ziet deze niet meer terug`);
+  await loadDogs();
+}
+
+async function herstel(id) {
+  await fetch(`/api/afgewezen/${encodeURIComponent(id)}`, { method: "DELETE" });
+  await loadDogs();
+}
+
+function showToast(text) {
+  el("toastText").textContent = text;
+  el("toast").hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el("toast").hidden = true; }, 8000);
+}
+
+function updateAfgewezenBtn() {
+  const afgewezen = state.dogs.filter((d) => d.afgewezen_op);
+  const btn = el("afgewezenBtn");
+  btn.hidden = afgewezen.length === 0;
+  btn.textContent = `🚫 Afgewezen (${afgewezen.length})`;
+}
+
+function openAfgewezenModal() {
+  const afgewezen = state.dogs.filter((d) => d.afgewezen_op)
+    .sort((a, b) => (b.afgewezen_op || "").localeCompare(a.afgewezen_op || ""));
+  el("modalBody").innerHTML = `
+    <h2 id="modalTitle">🚫 Afgewezen honden</h2>
+    <p class="afgewezen-uitleg">Weggeklikt en verborgen op het dashboard, ook na elke nieuwe scrape. Herstellen kan altijd.</p>
+    <div class="afgewezen-lijst">
+      ${afgewezen.map((dog) => `
+        <div class="afgewezen-rij">
+          <img src="${dog.photo ? "/" + esc(dog.photo) : PLACEHOLDER}" alt=""
+               onerror="this.onerror=null;this.src='${PLACEHOLDER}'">
+          <span><strong>${esc(dog.name)}</strong> · ${esc(dog.place)}<br>
+            <small>afgewezen op ${esc(dog.afgewezen_op)}</small></span>
+          <button class="chip" type="button" data-herstel="${esc(dog.id)}">Herstel</button>
+        </div>`).join("")}
+    </div>`;
+  el("modalBody").querySelectorAll("[data-herstel]").forEach((btn) =>
+    btn.addEventListener("click", async () => {
+      await herstel(btn.dataset.herstel);
+      if (state.dogs.some((d) => d.afgewezen_op)) openAfgewezenModal();
+      else closeModal();
+    }));
+  el("modal").hidden = false;
+  document.body.style.overflow = "hidden";
 }
 
 /* ---------- scrape-run & status ---------- */
@@ -253,6 +316,20 @@ function updateStatusUI(status) {
 /* ---------- init ---------- */
 
 el("updateBtn").addEventListener("click", triggerScrape);
+el("afgewezenBtn").addEventListener("click", openAfgewezenModal);
+el("toastUndo").addEventListener("click", async () => {
+  el("toast").hidden = true;
+  if (lastDismissedId) {
+    await herstel(lastDismissedId);
+    lastDismissedId = null;
+  }
+});
+el("grid").addEventListener("click", (e) => {
+  const card = e.target.closest(".card");
+  if (!card) return;
+  if (e.target.closest(".card__afwijs")) afwijzen(card.dataset.id);
+  else openModal(card.dataset.id);
+});
 el("nieuwOnly").addEventListener("change", (e) => { state.nieuwOnly = e.target.checked; render(); });
 el("sortSelect").addEventListener("change", (e) => { state.sort = e.target.value; render(); });
 el("modalClose").addEventListener("click", closeModal);

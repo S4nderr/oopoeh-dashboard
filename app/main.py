@@ -2,7 +2,7 @@
 import os
 import threading
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, HTTPException
@@ -106,7 +106,29 @@ def api_status():
 
 @app.get("/api/dogs")
 def api_dogs():
-    return store.load_snapshot()
+    snapshot = store.load_snapshot()
+    dismissed = store.load_dismissed()
+    for dog in snapshot["dogs"]:
+        dog["afgewezen_op"] = dismissed.get(dog["id"])
+    snapshot["afgewezen_totaal"] = len(dismissed)
+    return snapshot
+
+
+@app.put("/api/afgewezen/{dog_id}")
+def api_afwijzen(dog_id: str):
+    dismissed = store.load_dismissed()
+    dismissed.setdefault(dog_id, date.today().isoformat())
+    store.save_dismissed(dismissed)
+    return {"id": dog_id, "afgewezen_op": dismissed[dog_id]}
+
+
+@app.delete("/api/afgewezen/{dog_id}")
+def api_herstel(dog_id: str):
+    dismissed = store.load_dismissed()
+    if dog_id in dismissed:
+        del dismissed[dog_id]
+        store.save_dismissed(dismissed)
+    return {"id": dog_id, "afgewezen_op": None}
 
 
 app.mount("/photos", StaticFiles(directory=store.PHOTOS_DIR), name="photos")

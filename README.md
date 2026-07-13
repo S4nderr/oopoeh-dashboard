@@ -56,6 +56,7 @@ curl -X POST http://127.0.0.1:8000/api/scrape -H "Content-Type: application/json
 
 ## API
 
-- `GET /api/dogs` — huidige snapshot (kandidaten + stats)
+- `GET /api/dogs` — huidige snapshot (kandidaten + stats; per hond `afgewezen_op`)
 - `POST /api/scrape` — start een scrape-run (`409` als er al één draait; optioneel `{"max_pages": n}` voor tests)
 - `GET /api/status` — voortgang, laatste fout, volgende geplande run
+- `PUT /api/afgewezen/{dog_id}` / `DELETE /api/afgewezen/{dog_id}` — hond afwijzen ("weggeklikt", blijft over runs heen verborgen) of herstellen; opslag in `afgewezen.json` op het volume

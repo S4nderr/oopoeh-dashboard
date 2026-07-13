@@ -8,6 +8,7 @@ DATA_DIR = os.path.abspath(os.environ.get("DATA_DIR", os.path.join(os.path.dirna
 PHOTOS_DIR = os.path.join(DATA_DIR, "photos")
 SNAPSHOT_PATH = os.path.join(DATA_DIR, "snapshot.json")
 REGISTRY_PATH = os.path.join(DATA_DIR, "registry.json")
+DISMISSED_PATH = os.path.join(DATA_DIR, "afgewezen.json")
 
 EMPTY_SNAPSHOT = {"scraped_at": None, "postcode": None, "dogs": [], "stats": {}}
 
@@ -46,6 +47,19 @@ def load_registry():
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return {"initialized": None, "dogs": {}}
+
+
+def load_dismissed():
+    """Afgewezen honden: dog-id -> datum van afwijzing. Blijft over runs heen staan."""
+    try:
+        with open(DISMISSED_PATH, encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def save_dismissed(dismissed):
+    _write_atomic(DISMISSED_PATH, dismissed)
 
 
 def update_registry(seen_ids):
