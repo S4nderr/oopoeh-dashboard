@@ -172,14 +172,21 @@ def _match_pet(profile, card_name):
 
 
 def _cache_photo(fetcher, url):
+    """Eén foto naar de cache; elke fout levert None op en breekt nooit de run."""
     if not url:
+        return None
+    url = urljoin(BASE_URL, url)
+    if not url.startswith(("http://", "https://")):
         return None
     filename = os.path.basename(url.split("?")[0])
     if not filename:
         return None
     dest = os.path.join(store.PHOTOS_DIR, filename)
     if not os.path.exists(dest):
-        response = fetcher.get(url)
+        try:
+            response = fetcher.get(url)
+        except httpx.HTTPError:
+            return None
         if response is None or response.status_code != 200 or not response.content:
             return None
         with open(dest, "wb") as f:
@@ -217,7 +224,10 @@ def run(progress, max_pages=None):
         profile_errors = 0
         unique_ids = list(dict.fromkeys(card["profile_id"] for card in cards))
         for i, profile_id in enumerate(unique_ids, 1):
-            response = fetcher.get(f"{BASE_URL}/profiel/baasje/{profile_id}")
+            try:
+                response = fetcher.get(f"{BASE_URL}/profiel/baasje/{profile_id}")
+            except httpx.HTTPError:
+                response = None
             if response is not None and response.status_code == 200:
                 profiles[profile_id] = parse_profile(response.text)
             else:
