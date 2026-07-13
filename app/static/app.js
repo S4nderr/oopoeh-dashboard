@@ -1,8 +1,11 @@
 "use strict";
 
 const SIZE_LABEL = "Grootte van de hond";
+// "Nieuw" is OOPOEH's eigen statusbadge (recent aangemeld op de site);
+// onze eigen eerste-waarneming heet in de UI altijd "✨ Nieuw".
 const STATUS_ORDER = [
   "Beschikbaar",
+  "Nieuw",
   "Heeft aanvraag lopen",
   "Gematcht (zoekt nog een OOPOEH)",
   "Gematcht",
@@ -10,6 +13,7 @@ const STATUS_ORDER = [
 ];
 const STATUS_CLASS = {
   "Beschikbaar": "groen",
+  "Nieuw": "blauw",
   "Heeft aanvraag lopen": "oranje",
   "Gematcht (zoekt nog een OOPOEH)": "blauw",
   "Gematcht": "roze",

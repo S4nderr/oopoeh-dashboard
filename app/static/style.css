@@ -65,6 +65,8 @@ body {
 
 /* ---------- voortgang ---------- */
 
+.progress[hidden] { display: none; }
+
 .progress {
   display: flex;
   align-items: center;
