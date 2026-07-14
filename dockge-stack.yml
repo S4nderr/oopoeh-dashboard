@@ -1,13 +1,12 @@
 # Plak deze stack in Dockge (Compose-editor) en klik Deploy.
-# Docker op je Proxmox-box cloont de repo bij 'main' en bouwt de image zelf —
-# geen image-registry nodig. Voorwaarde: de repo is PUBLIEK op GitHub.
+# De image wordt kant-en-klaar gepulld van GHCR (GitHub Actions bouwt hem
+# bij elke push naar main). Bijwerken = de Update-knop in Dockge.
 #
-# Eerste start doet automatisch één scrape (~13 min); dashboard op poort 8099.
-# Bijwerken na een git push: in Dockge de stack opnieuw bouwen/deployen.
+# Eerste start doet automatisch één scrape (~5 min); dashboard op poort 8099.
 
 services:
   oopoeh-dashboard:
-    build: https://github.com/S4nderr/oopoeh-dashboard.git#main
+    image: ghcr.io/s4nderr/oopoeh-dashboard:latest
     container_name: oopoeh-dashboard
     ports:
       - "8099:8000"
