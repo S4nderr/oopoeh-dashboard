@@ -2,15 +2,12 @@
 # Docker op je Proxmox-box cloont de repo bij 'main' en bouwt de image zelf —
 # geen image-registry nodig. Voorwaarde: de repo is PUBLIEK op GitHub.
 #
-# LET OP: vervang <JOUW-GITHUB-GEBRUIKERSNAAM> hieronder door je echte
-# GitHub-gebruikersnaam (dezelfde als in de repo-URL).
-#
 # Eerste start doet automatisch één scrape (~13 min); dashboard op poort 8099.
 # Bijwerken na een git push: in Dockge de stack opnieuw bouwen/deployen.
 
 services:
   oopoeh-dashboard:
-    build: https://github.com/<JOUW-GITHUB-GEBRUIKERSNAAM>/oopoeh-dashboard.git#main
+    build: https://github.com/S4nderr/oopoeh-dashboard.git#main
     container_name: oopoeh-dashboard
     ports:
       - "8099:8000"
