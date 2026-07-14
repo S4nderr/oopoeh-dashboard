@@ -1,10 +1,12 @@
 """FastAPI-app: serveert het dashboard, de API en plant de nachtelijke scrape-run."""
 import os
 import threading
+import time
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta
 from typing import Literal
 
+import httpx
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -14,6 +16,36 @@ import scraper
 import store
 
 store.ensure_dirs()
+
+
+def _lees_versie():
+    for pad in (os.path.join(os.path.dirname(__file__), "VERSION"),
+                os.path.join(os.path.dirname(__file__), "..", "VERSION")):
+        try:
+            with open(pad, encoding="utf-8") as f:
+                return f.read().strip()
+        except FileNotFoundError:
+            continue
+    return "dev"
+
+
+APP_VERSION = _lees_versie()
+VERSION_URL = "https://raw.githubusercontent.com/S4nderr/oopoeh-dashboard/main/VERSION"
+_versie_cache = {"checked_at": 0.0, "latest": None}
+
+
+def _laatste_versie():
+    """Nieuwste versie op GitHub, hooguit eens per 6 uur gecheckt; stil bij falen."""
+    nu = time.time()
+    if nu - _versie_cache["checked_at"] > 6 * 3600:
+        _versie_cache["checked_at"] = nu
+        try:
+            response = httpx.get(VERSION_URL, timeout=4)
+            if response.status_code == 200:
+                _versie_cache["latest"] = response.text.strip()
+        except httpx.HTTPError:
+            pass
+    return _versie_cache["latest"]
 
 TIMEZONE = os.environ.get("TZ", "Europe/Amsterdam")
 SCRAPE_TIME = os.environ.get("SCRAPE_TIME", "03:00")
@@ -105,6 +137,10 @@ def api_status():
         state = dict(_state)
     job = scheduler.get_job("nightly")
     state["next_run"] = job.next_run_time.isoformat() if job and job.next_run_time else None
+    state["version"] = APP_VERSION
+    latest = _laatste_versie()
+    state["latest_version"] = latest
+    state["update_beschikbaar"] = bool(latest and latest != APP_VERSION)
     return state
 
 

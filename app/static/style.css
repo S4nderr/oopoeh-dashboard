@@ -109,6 +109,7 @@ button { font-family: var(--font-body); }
   text-align: right;
 }
 .meta__error { color: #E8A08F; max-width: 320px; }
+.meta__update { color: var(--goud-licht); font-weight: 600; }
 
 #updateBtn {
   border: 0;
@@ -441,7 +442,9 @@ button { font-family: var(--font-body); }
 .deck-card {
   position: relative;
   width: min(560px, 100%);
-  height: clamp(380px, calc(100vh - 330px), 680px);
+  height: auto;
+  min-height: 380px;
+  max-height: clamp(380px, calc(100vh - 330px), 680px);
   display: flex;
   flex-direction: column;
   background: var(--papier);
@@ -787,8 +790,18 @@ button { font-family: var(--font-body); }
 
 /* ---------- responsief & rust ---------- */
 
+/* verticale monitor: gebruik de hoogte — het hele dossier leesbaar zonder scrollen */
+@media (orientation: portrait) and (min-width: 701px) {
+  .deck-card {
+    width: min(640px, 100%);
+    /* kop + filters + teller boven, stempelknoppen + hint onder de kaart */
+    max-height: calc(100vh - 440px);
+  }
+}
+
 @media (max-width: 700px) {
-  .deck-card { height: clamp(340px, calc(100vh - 470px), 660px); }
+  /* gestapelde header op smal scherm: kaart korter zodat ✕/♥ in beeld blijven */
+  .deck-card { max-height: clamp(340px, calc(100vh - 470px), 660px); }
 }
 
 @media (max-width: 560px) {

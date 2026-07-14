@@ -296,6 +296,24 @@ function renderDeck() {
     </div>
     <div class="mrz" aria-hidden="true">${esc(mrz(dog))}</div>`;
   el("deckLink").href = dog.url;
+  fitDeckCard();
+}
+
+// Maat de kaart exact op de vrije verticale ruimte, zodat de stempelknoppen
+// altijd in beeld blijven en een hoog (portrait) scherm volledig benut wordt.
+// Bewust synchroon (geen requestAnimationFrame): die vuurt niet in
+// achtergrondtabs, waardoor de kaart daar nooit gemaat zou worden.
+function fitDeckCard() {
+  const card = el("deckCard");
+  if (state.view !== "beoordelen" || card.hidden) return;
+  const onder = el("deckActies").offsetHeight + el("deckHint").offsetHeight + 46;
+  const ruimte = window.innerHeight - card.getBoundingClientRect().top - onder;
+  card.style.maxHeight = Math.max(360, ruimte) + "px";
+}
+
+window.addEventListener("resize", fitDeckCard);
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(fitDeckCard); // fontwissel verschuift de kaart-top
 }
 
 /* ---------- beoordelen ---------- */
@@ -492,6 +510,12 @@ function updateStatusUI(status) {
   el("nextRun").textContent = status.next_run
     ? `Volgende automatische run: ${fmtDateTime(status.next_run)}`
     : "";
+  if (status.version) {
+    el("versie").textContent = status.update_beschikbaar
+      ? `v${status.version} → v${status.latest_version} klaar — Save & Deploy in Dockge`
+      : `v${status.version}`;
+    el("versie").classList.toggle("meta__update", !!status.update_beschikbaar);
+  }
   const errEl = el("lastError");
   errEl.hidden = !status.last_error;
   if (status.last_error) errEl.textContent = `Laatste run mislukt: ${status.last_error}`;
