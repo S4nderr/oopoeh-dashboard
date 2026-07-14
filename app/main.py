@@ -37,9 +37,9 @@ def _progress(phase, done, total):
         _state.update(phase=phase, done=done, total=total)
 
 
-def _worker(max_pages):
+def _worker(max_pages, rate):
     try:
-        stats = scraper.run(_progress, max_pages=max_pages)
+        stats = scraper.run(_progress, max_pages=max_pages, rate=rate)
         with _lock:
             _state.update(last_stats=stats, last_error=None)
     except Exception as exc:  # snapshot blijft onaangetast bij een mislukte run
@@ -51,19 +51,22 @@ def _worker(max_pages):
                           last_finished_at=datetime.now().astimezone().isoformat())
 
 
-def start_scrape(max_pages=None, source="handmatig"):
+def start_scrape(max_pages=None, source="handmatig", rate=None):
     with _lock:
         if _state["running"]:
             return False
         _state.update(running=True, phase="starten", done=0, total=None,
                       source=source, started_at=datetime.now().astimezone().isoformat())
-    threading.Thread(target=_worker, args=(max_pages,), daemon=True).start()
+    threading.Thread(target=_worker, args=(max_pages, rate), daemon=True).start()
     return True
 
 
 def _initial_fill():
+    # Alleen de allereerste vulling mag sneller: daar wacht een mens op.
+    # Elke run daarna houdt de standaard-etiquette (RATE_LIMIT_SECONDS) aan.
     if store.load_snapshot()["scraped_at"] is None:
-        start_scrape(source="eerste vulling")
+        start_scrape(source="eerste vulling",
+                     rate=float(os.environ.get("FIRST_FILL_RATE_SECONDS", "0.5")))
 
 
 hour, minute = SCRAPE_TIME.split(":")

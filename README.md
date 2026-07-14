@@ -23,12 +23,13 @@ Nieuwe code naar `main` pushen en in Dockge **Save & Deploy** (of in de stack-co
 | `SEARCH_POSTCODE` | `2273vm` | Postcode van het zoekgebied (OOPOEH zoekt in een straal van 20 km) |
 | `SCRAPE_TIME` | `03:00` | Tijdstip van de nachtelijke scrape-run (`HH:MM`) |
 | `RATE_LIMIT_SECONDS` | `1.0` | Minimale tussenpoos tussen requests |
+| `FIRST_FILL_RATE_SECONDS` | `0.5` | Tussenpoos voor alléén de allereerste vulling (daar wacht je op; ~5 min) |
 | `TZ` | `Europe/Amsterdam` | Tijdzone voor schema en logs |
 | `DATA_DIR` | `/data` | Opslaglocatie (volume) |
 
 ## Scrape-etiquette
 
-Bindend voor dit project: uitsluitend GET-requests op publieke pagina's, maximaal 1 request per seconde, een eerlijke User-Agent met contactadres, foto's worden éénmalig gecachet. Eén nachtelijke run is ± 520 requests. Persoonlijk, niet-commercieel gebruik; de data blijft lokaal.
+Bindend voor dit project: uitsluitend GET-requests op publieke pagina's, maximaal 1 request per seconde, een eerlijke User-Agent met contactadres, foto's worden éénmalig gecachet. Eén nachtelijke run is ± 520 requests. Persoonlijk, niet-commercieel gebruik; de data blijft lokaal. Enige uitzondering: de allereerste vulling (waar een gebruiker live op wacht) mag op `FIRST_FILL_RATE_SECONDS` (0,5 s) draaien — nog altijd bescheiden, en alle geplande en handmatige runs daarna houden de volle seconde aan.
 
 ## Lokaal ontwikkelen
 

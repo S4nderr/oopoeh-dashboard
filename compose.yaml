@@ -9,6 +9,7 @@ services:
       - SEARCH_POSTCODE=2273vm
       - SCRAPE_TIME=03:00
       - RATE_LIMIT_SECONDS=1.0
+      - FIRST_FILL_RATE_SECONDS=0.5
     volumes:
       - oopoeh_data:/data
     healthcheck:

@@ -54,8 +54,8 @@ def _soup(html):
 class Fetcher:
     """GET met vaste tussenpoos en één retry bij 5xx/netwerkfout."""
 
-    def __init__(self):
-        self.rate = float(os.environ.get("RATE_LIMIT_SECONDS", "1.0"))
+    def __init__(self, rate=None):
+        self.rate = rate if rate is not None else float(os.environ.get("RATE_LIMIT_SECONDS", "1.0"))
         self.client = httpx.Client(
             headers={"User-Agent": USER_AGENT}, timeout=30, follow_redirects=True
         )
@@ -209,11 +209,11 @@ def _cache_photo(fetcher, url):
     return f"photos/{filename}"
 
 
-def run(progress, max_pages=None):
+def run(progress, max_pages=None, rate=None):
     """Volledige scrape-run; schrijft snapshot atomair en geeft stats terug."""
     postcode = os.environ.get("SEARCH_POSTCODE", "2273vm").lower()
     started = time.monotonic()
-    fetcher = Fetcher()
+    fetcher = Fetcher(rate)
     try:
         cards = []
         total_results = None
