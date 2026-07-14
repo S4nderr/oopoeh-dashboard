@@ -3,29 +3,45 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>OOPOEH-kandidaten</title>
+  <title>Kandidatendossier — OOPOEH</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐶</text></svg>">
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
-<header class="topbar">
-  <div class="topbar__title">
-    <h1>🐶 OOPOEH-kandidaten</h1>
-    <p id="subtitle">Kleine, gecastreerde honden die met een ander huisdier kunnen</p>
+<header class="cover">
+  <div class="cover__hoofd">
+    <div class="cover__merk">
+      <svg class="embleem" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="23" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <ellipse cx="24" cy="29" rx="7.2" ry="6" fill="currentColor"/>
+        <ellipse cx="13.5" cy="21" rx="3.4" ry="4.4" fill="currentColor" transform="rotate(-18 13.5 21)"/>
+        <ellipse cx="20" cy="15.5" rx="3.4" ry="4.6" fill="currentColor"/>
+        <ellipse cx="28" cy="15.5" rx="3.4" ry="4.6" fill="currentColor"/>
+        <ellipse cx="34.5" cy="21" rx="3.4" ry="4.4" fill="currentColor" transform="rotate(18 34.5 21)"/>
+      </svg>
+      <div>
+        <p class="cover__eyebrow">Kandidatendossier · OOPOEH</p>
+        <h1>OOPOEH-kandidaten</h1>
+        <p id="subtitle">Kleine, gecastreerde honden die met een ander huisdier kunnen</p>
+      </div>
+    </div>
+    <div class="cover__acties">
+      <div class="meta">
+        <span id="lastUpdated">Nog geen gegevens</span>
+        <span id="nextRun"></span>
+        <span id="lastError" class="meta__error" hidden></span>
+      </div>
+      <button id="updateBtn" type="button">Update nu</button>
+    </div>
   </div>
   <nav class="views" aria-label="Weergave">
     <button id="viewBeoordelen" class="views__btn" type="button" data-view="beoordelen">Beoordelen</button>
     <button id="viewOverzicht" class="views__btn" type="button" data-view="overzicht">Overzicht</button>
   </nav>
-  <div class="topbar__actions">
-    <div class="meta">
-      <span id="lastUpdated">Nog geen gegevens</span>
-      <span id="nextRun"></span>
-      <span id="lastError" class="meta__error" hidden></span>
-    </div>
-    <button id="updateBtn" type="button">Update nu</button>
-  </div>
 </header>
 
 <div id="progress" class="progress" hidden>
@@ -38,7 +54,7 @@
   <div class="filters__group" id="statusChips"></div>
   <div class="filters__group" id="sizeChips"></div>
   <div class="filters__group filters__group--end">
-    <label class="toggle" title="Honden die de collector de afgelopen 7 dagen voor het eerst zag"><input type="checkbox" id="nieuwOnly"><span>✨ Nieuw (laatste 7 dagen)</span></label>
+    <label class="toggle" title="Honden die de collector de afgelopen 7 dagen voor het eerst zag"><input type="checkbox" id="nieuwOnly"><span>Nieuw (laatste 7 dagen)</span></label>
     <select id="sortSelect" aria-label="Sorteren">
       <option value="afstand">Sorteer: afstand</option>
       <option value="nieuw">Sorteer: nieuwste eerst</option>
@@ -57,9 +73,10 @@
     <a id="deckLink" class="deck-btn deck-btn--link" target="_blank" rel="noopener" title="Bekijk op OOPOEH">↗</a>
     <button id="jaBtn" class="deck-btn deck-btn--ja" type="button" aria-label="Ja, favoriet" title="Ja (→)">♥</button>
   </div>
-  <p id="deckHint" class="deck-hint" hidden>swipe, of gebruik de pijltjestoetsen: ← nee &nbsp;·&nbsp; ja →</p>
+  <p id="deckHint" class="deck-hint" hidden>swipe, of pijltjestoetsen: ← nee · ja →</p>
   <div id="deckLeeg" class="deck-leeg" hidden>
-    <p>🎉 Alles beoordeeld!</p>
+    <div class="stempel stempel--ja stempel--statisch">Dossier compleet</div>
+    <p>Alle kandidaten zijn beoordeeld.</p>
     <button class="chip" type="button" onclick="location.hash='overzicht'">Naar het overzicht</button>
   </div>
 </main>
@@ -80,6 +97,6 @@
   <button id="toastUndo" type="button">Ongedaan maken</button>
 </div>
 
-<script src="app.js?v=5"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>

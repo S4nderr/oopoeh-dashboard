@@ -186,7 +186,18 @@ function dogDetailsHtml(dog) {
 }
 
 function plaatsRegel(dog) {
-  return `📍 ${esc(dog.place)}${dog.distance_km != null ? ` · ${dog.distance_km.toLocaleString("nl-NL")} km` : ""} · Baasje ${esc(dog.owner_name)}`;
+  return `${esc(dog.place)}${dog.distance_km != null ? ` · ${dog.distance_km.toLocaleString("nl-NL")} km` : ""} · Baasje ${esc(dog.owner_name)}`;
+}
+
+// Machine-leesbare strook onderaan het dossier, zoals in een echt dierenpaspoort —
+// opgebouwd uit de echte gegevens van de hond.
+function mrz(dog) {
+  const schoon = (t) => (t || "").normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .toUpperCase().replace(/[^A-Z0-9]+/g, "<");
+  const regel = (t) => (t.length > 34 ? t.slice(0, 34) : t.padEnd(34, "<"));
+  const km = dog.distance_km != null ? String(dog.distance_km).replace(".", "<") : "";
+  return regel(`P<NLD${schoon(dog.name)}<<KANDIDAAT`) + "\n" +
+         regel(`${schoon(dog.profile_id)}<${schoon(dog.place)}<${km}KM`);
 }
 
 /* ---------- weergaven ---------- */
@@ -223,21 +234,23 @@ function renderGrid() {
       : `<div class="card__acties">
            <button class="card__mini" type="button" data-actie="wis" title="Beoordeling ongedaan maken">↺</button>
          </div>`;
-    const oordeelBadge =
-      oordeel === "favoriet" ? '<span class="badge badge--favoriet">♥ Favoriet</span>' :
-      oordeel === "afgewezen" ? '<span class="badge badge--grijs">🚫 Afgewezen</span>' : "";
+    const stempelmerk =
+      oordeel === "favoriet" ? '<span class="stempelmerk stempelmerk--ja">Favoriet</span>' :
+      oordeel === "afgewezen" ? '<span class="stempelmerk stempelmerk--nee">Afgewezen</span>' : "";
     return `
     <article class="card${oordeel === "afgewezen" ? " card--afgewezen" : ""}" data-id="${esc(dog.id)}">
       ${acties}
-      ${dog.is_new ? '<span class="badge badge--nieuw">✨ Nieuw</span>' : ""}
-      <img class="card__photo" loading="lazy" alt="Foto van ${esc(dog.name)}"
-           src="${photoUrl(dog)}" onerror="this.onerror=null;this.src='${PLACEHOLDER}'">
+      ${dog.is_new ? '<span class="badge badge--nieuw">Nieuw</span>' : ""}
+      <div class="card__fotorand">
+        <img class="card__photo" loading="lazy" alt="Foto van ${esc(dog.name)}"
+             src="${photoUrl(dog)}" onerror="this.onerror=null;this.src='${PLACEHOLDER}'">
+        ${stempelmerk}
+      </div>
       <h2>${esc(dog.name)}</h2>
       <p class="card__agebreed">${esc(dog.age_text)}</p>
-      <p class="card__distance">📍 ${esc(dog.place)}${dog.distance_km != null ? ` · ${dog.distance_km.toLocaleString("nl-NL")} km` : ""}</p>
+      <p class="card__distance">${esc(dog.place)}${dog.distance_km != null ? ` · ${dog.distance_km.toLocaleString("nl-NL")} km` : ""}</p>
       <div class="card__badges">
         <span class="badge badge--${statusClass(dog.status)}">${esc(dog.status)}</span>
-        ${oordeelBadge}
       </div>
       <p class="card__desc">${esc(snippet(dog.description, 130))}</p>
     </article>`;
@@ -262,20 +275,26 @@ function renderDeck() {
   card.style.transform = "";
   card.style.opacity = "";
   card.innerHTML = `
-    <div class="deck-card__foto">
-      <img src="${photoUrl(dog)}" alt="Foto van ${esc(dog.name)}"
-           onerror="this.onerror=null;this.src='${PLACEHOLDER}'" draggable="false">
-      <div class="deck-card__fotobadges">
-        <span class="badge badge--${statusClass(dog.status)}">${esc(dog.status)}</span>
-        ${dog.is_new ? '<span class="badge badge--nieuw" style="position:static">✨ Nieuw</span>' : ""}
+    <div class="pas-kop">
+      <div class="pas-foto">
+        <img src="${photoUrl(dog)}" alt="Foto van ${esc(dog.name)}"
+             onerror="this.onerror=null;this.src='${PLACEHOLDER}'" draggable="false">
+      </div>
+      <div class="pas-id">
+        <p class="pas-eyebrow">Kandidaat · dossier ${esc(dog.profile_id)}</p>
+        <h2>${esc(dog.name)}</h2>
+        <p class="pas-sub">${esc(dog.age_text)}</p>
+        <p class="pas-sub">${plaatsRegel(dog)}</p>
+        <div class="pas-badges">
+          <span class="badge badge--${statusClass(dog.status)}">${esc(dog.status)}</span>
+          ${dog.is_new ? '<span class="badge badge--nieuw">Nieuw</span>' : ""}
+        </div>
       </div>
     </div>
-    <div class="deck-card__body">
-      <h2>${esc(dog.name)}</h2>
-      <p class="deck-card__sub">${esc(dog.age_text)}</p>
-      <p class="deck-card__sub">${plaatsRegel(dog)}</p>
+    <div class="pas-body">
       ${dogDetailsHtml(dog)}
-    </div>`;
+    </div>
+    <div class="mrz" aria-hidden="true">${esc(mrz(dog))}</div>`;
   el("deckLink").href = dog.url;
 }
 
@@ -315,6 +334,8 @@ async function beoordeelDeck(oordeel) {
   deckBusy = true;
   const card = el("deckCard");
   const put = putBeoordeling(dog.id, oordeel);
+  stempel(card, oordeel);
+  await new Promise((r) => setTimeout(r, 430)); // de stempel landt eerst
   flyOut(card, oordeel);
   await new Promise((r) => setTimeout(r, 240));
   await put;
@@ -323,6 +344,14 @@ async function beoordeelDeck(oordeel) {
     : `${dog.name} afgewezen — je ziet deze niet meer terug`);
   await loadDogs();
   deckBusy = false;
+}
+
+function stempel(card, oordeel) {
+  card.querySelector(".stempel")?.remove();
+  const s = document.createElement("div");
+  s.className = `stempel stempel--${oordeel}`;
+  s.textContent = oordeel === "ja" ? "Favoriet" : "Afgewezen";
+  card.appendChild(s);
 }
 
 function flyOut(card, oordeel) {
@@ -393,9 +422,9 @@ function openModal(id) {
         <p>${plaatsRegel(dog)}</p>
         <div class="modal__badges">
           <span class="badge badge--${statusClass(dog.status)}">${esc(dog.status)}</span>
-          ${oordeel === "favoriet" ? '<span class="badge badge--favoriet">♥ Favoriet</span>' : ""}
-          ${oordeel === "afgewezen" ? '<span class="badge badge--grijs">🚫 Afgewezen</span>' : ""}
-          ${dog.is_new ? '<span class="badge badge--nieuw" style="position:static">✨ Nieuw</span>' : ""}
+          ${oordeel === "favoriet" ? '<span class="stempelmerk stempelmerk--ja stempelmerk--inline">Favoriet</span>' : ""}
+          ${oordeel === "afgewezen" ? '<span class="stempelmerk stempelmerk--nee stempelmerk--inline">Afgewezen</span>' : ""}
+          ${dog.is_new ? '<span class="badge badge--nieuw">Nieuw</span>' : ""}
         </div>
       </div>
     </div>
