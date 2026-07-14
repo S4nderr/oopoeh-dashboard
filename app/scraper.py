@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 import store
 
 BASE_URL = "https://www.oopoeh.nl"
-USER_AGENT = "oopoeh-dashboard/1.0 (persoonlijk gebruik; sandertkruis@gmail.com)"
+USER_AGENT = "oopoeh-dashboard/1.0 (persoonlijk gebruik; https://github.com/S4nderr/oopoeh-dashboard)"
 NIEUW_DAYS = 7
 
 # Kandidaat-criteria: alle drie vereist; ontbrekend of "Onbekend" telt als nee.

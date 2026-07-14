@@ -8,25 +8,13 @@ Zie [CONTEXT.md](CONTEXT.md) voor het begrippenkader (Kandidaat, Snapshot, Nieuw
 
 ## Draaien met Dockge
 
-Op de Docker-host (Dockge op Proxmox):
+Plak de inhoud van [dockge-stack.yml](dockge-stack.yml) in Dockge (+ Compose → Deploy). De compose bouwt de image rechtstreeks vanaf deze GitHub-repo (`build: https://github.com/S4nderr/oopoeh-dashboard.git#main`) — er hoeft niets op de server gecloned te worden. Dashboard: `http://<host>:8099`.
 
-```bash
-cd /opt/stacks
-git clone <repo-url> oopoeh-dashboard
-```
-
-Daarna verschijnt de stack in Dockge → **Deploy**. De image wordt lokaal gebouwd (`build: .`). Dashboard: `http://<host>:8099`.
-
-Bij de eerste start is de snapshot leeg; na ~10 seconden begint automatisch de eerste vulling (± 9 minuten voor ~500 profielen). Daarna elke nacht om `SCRAPE_TIME`, of handmatig via de knop **Update nu**.
+Bij de eerste start is de snapshot leeg; na ~10 seconden begint automatisch de eerste vulling (± 13 minuten voor ~500 profielen). Daarna elke nacht om `SCRAPE_TIME`, of handmatig via de knop **Update nu**.
 
 ### Bijwerken
 
-```bash
-cd /opt/stacks/oopoeh-dashboard
-git pull
-```
-
-Dan in Dockge de stack opnieuw builden/deployen. De data (snapshot, registry, foto's) staat op het named volume `oopoeh_data` en overleeft rebuilds.
+Nieuwe code naar `main` pushen en in Dockge **Save & Deploy** (of in de stack-console `docker compose up -d --build`) — de build haalt vers de laatste commit op. De data (snapshot, registry, beoordelingen, foto's) staat op het named volume `oopoeh_data` en overleeft rebuilds. Let op: de gewone **Update**-knop van Dockge is voor pull-stacks en bouwt niet gegarandeerd opnieuw.
 
 ## Configuratie (environment)
 
