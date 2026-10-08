@@ -4,7 +4,7 @@ Self-hosted dashboard dat elke nacht alle honden rond een postcode van [oopoeh.n
 
 Kandidaten beoordeel je Tinder-gewijs in de **Beoordelen**-weergave: één profiel tegelijk met alle info, ✕/♥-knoppen, pijltjestoetsen (← nee, → ja) of swipe. Ja = **Favoriet**, nee = **Afgewezen**; beide blijven over scrape-runs heen bewaard en zijn altijd terug te draaien in het **Overzicht** (filter op Favoriet / Onbeoordeeld / Afgewezen). Fotokaarten zoals op de site, met beschikbaarheidsstatus, filters, een detailpaneel en een ✨ Nieuw-badge voor honden die er vorige run nog niet waren.
 
-Zie [CONTEXT.md](CONTEXT.md) voor het begrippenkader (Kandidaat, Snapshot, Nieuw, …).
+Zie [GLOSSARY.md](GLOSSARY.md) voor het begrippenkader (Kandidaat, Snapshot, Nieuw, …).
 
 ## Draaien met Dockge
 
